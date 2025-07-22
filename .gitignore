@@ -1,0 +1,15 @@
+**/bin/
+**/obj/
+
+.vs/
+.vscode/
+
+**/.vs/
+**/.vscode/
+
+*.user
+
+# Ignore logs and temp
+*.log
+*.tmp
+*.cache
