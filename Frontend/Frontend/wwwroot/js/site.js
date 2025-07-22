@@ -1,4 +1,27 @@
-﻿// Please see documentation at https://learn.microsoft.com/aspnet/core/client-side/bundling-and-minification
-// for details on configuring this project to bundle and minify static web assets.
+﻿const dropZone = document.getElementById('drop-zone');
+const fileInput = document.getElementById('file');
+const fileStatus = document.getElementById('file-status');
 
-// Write your JavaScript code.
+['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+    dropZone.addEventListener(eventName, e => {
+        e.preventDefault();
+        e.stopPropagation();
+    });
+});
+
+dropZone.addEventListener('drop', e => {
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+        fileInput.files = files;
+        updateFileStatus(files.length);
+    }
+});
+
+fileInput.addEventListener('change', () => {
+    updateFileStatus(fileInput.files.length);
+});
+
+function updateFileStatus(count) {
+    fileStatus.className = 'upload-status';
+    fileStatus.textContent = `${count} file${count > 1 ? 's' : ''} uploaded!`;
+}
