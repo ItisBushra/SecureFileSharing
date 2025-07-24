@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Backend.Repository.IRepository
 {
-    public interface IFileEncyptionRepository
+    public interface IFileEncryptionRepository
     {
         Task<FileEncryption> CreateEncryptedFileAsync(FileEncryption fileEncryption); 
         Task<bool> RemoveEncryptedFileAsync(Guid id);

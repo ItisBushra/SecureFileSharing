@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Backend.Repository
 {
-    public class FileEncryptionRepository : IFileEncyptionRepository
+    public class FileEncryptionRepository : IFileEncryptionRepository
     {
         private DBContext _dBContext;
         public FileEncryptionRepository(DBContext dBContext)
