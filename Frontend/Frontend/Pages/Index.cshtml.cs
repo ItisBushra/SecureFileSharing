@@ -37,4 +37,25 @@ public class IndexModel : PageModel
         }
         return Page();
     }
+
+    public async Task<IActionResult> OnDeleteAsync(Guid id)
+    {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+
+        if(id == Guid.Empty)
+        {
+            return BadRequest("The file Does not Exists or is an Empty Value!");
+        }
+
+        try
+        {
+            await fileEncryptionApplication.RemoveEncryptedFileAsync(id);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ex.Message);
+        }
+        return RedirectToPage("Index");
+    }
 }
