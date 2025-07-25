@@ -1,6 +1,6 @@
 ﻿using Backend.Data;
 using Backend.Models;
-using Backend.Repository.IRepository;
+using Backend.Repositories.IRepositories;
 using System;
 using System.Collections.Generic;
 using System.Linq;

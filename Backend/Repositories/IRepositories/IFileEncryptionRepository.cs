@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Backend.Repository.IRepository
+namespace Backend.Repositories.IRepositories
 {
     public interface IFileEncryptionRepository
     {
