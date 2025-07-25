@@ -10,8 +10,8 @@ namespace Backend.Models
     {
         public Guid Id { get; set; } = Guid.NewGuid();
         public string Name { get; set; }
-        public byte [] Ciphertext { get; set; }
-        public byte[] IV { get; set; }
+        public string Ciphertext { get; set; }
+        public string IV { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime? ExperationDate { get; set; }
         public int DownloadCount { get; set; }
