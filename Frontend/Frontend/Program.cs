@@ -1,16 +1,22 @@
 using Backend.Data;
 using Microsoft.EntityFrameworkCore;
+using Backend.Repository;
+using Backend.Repositories.IRepositories;
+using Backend.Applications;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorPages();
+builder.Services.AddScoped<IFileEncryptionRepository, FileEncryptionRepository>();
+builder.Services.AddScoped<IFileEncryptionApplication, FileEncryptionApplication>();
 
-var app = builder.Build();
 
 builder.Services.AddDbContext<DBContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+
+var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())

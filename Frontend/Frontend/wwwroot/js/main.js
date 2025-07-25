@@ -33,21 +33,43 @@ function updateFileStatus(count) {
     }
 }
 
+
+async function SendFileToRazor(file, encrypted) {
+    const dataToSend = {
+        Name: file.name,
+        Ciphertext: encrypted.ciphertext, 
+        IV: encrypted.iv,                 
+    };
+    const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
+    console.log(dataToSend);
+    await fetch(window.location.pathname, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'RequestVerificationToken': token
+        },
+        body: JSON.stringify(dataToSend),
+    });
+}
+
 function handleFiles(files) {
-    const reader = new FileReader();
     Object.keys(files).forEach((i) => {
         const file = files[i];
         if (!file) {
             console.error("No file selected.");
             return;
         }
-        reader.onload = function (e) {
-            let arrayBuffer = new Uint8Array(reader.result);
-            console.log(arrayBuffer);
-        }
+
+        const reader = new FileReader();
+        reader.onload = async function () {
+            const arrayBuffer = new Uint8Array(reader.result);
+            const encrypted = await encryptData(arrayBuffer);
+            await SendFileToRazor(file, encrypted);
+        };
+
         reader.readAsArrayBuffer(file);
     });
-}    
+}
 
 
 async function GenerateKey() {
@@ -70,8 +92,8 @@ async function encryptData(fileContent) {
 
     const rawKey = await crypto.subtle.exportKey("raw", key);
     return {
-        ciphertext: new Uint8Array(encryptedContent),
-        iv: iv,
-        key: new Uint8Array(rawKey),
+        ciphertext: btoa(String.fromCharCode(...new Uint8Array(encryptedContent))),
+        iv: btoa(String.fromCharCode(...iv)),
+        key: btoa(String.fromCharCode(...new Uint8Array(rawKey))),
     };
 }

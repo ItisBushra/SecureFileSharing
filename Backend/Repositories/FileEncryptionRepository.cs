@@ -23,9 +23,16 @@ namespace Backend.Repository
 
         public async Task<FileEncryption> CreateEncryptedFileAsync(FileEncryption fileEncryption)
         {
-            await _dBContext.FileEncryption.AddAsync(fileEncryption);
-            await _dBContext.SaveChangesAsync();
-            return fileEncryption;
+            try
+            {
+                await _dBContext.FileEncryption.AddAsync(fileEncryption);
+                await _dBContext.SaveChangesAsync();
+                return fileEncryption;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
 
         public async Task<bool> RemoveEncryptedFileAsync(Guid id)
