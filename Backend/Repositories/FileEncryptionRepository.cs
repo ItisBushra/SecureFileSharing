@@ -30,7 +30,7 @@ namespace Backend.Repository
 
         public async Task<bool> RemoveEncryptedFileAsync(Guid id)
         {
-            var fileToBeRemoved = await _dBContext.FileEncryption.FindAsync(id);
+            var fileToBeRemoved = await GetEncryptedFileAsync(id);
             if (fileToBeRemoved != null)
             {
                 _dBContext.Remove(fileToBeRemoved);
@@ -40,9 +40,16 @@ namespace Backend.Repository
             return false;
         }
 
+        public async Task<FileEncryption?> GetEncryptedFileAsync(Guid id)
+        {
+            var file = await _dBContext.FileEncryption.FindAsync(id);
+            if (file != null) return file;
+            return null;
+        }
+
         public async Task<bool> UpdateDownloadCountAsync(Guid id)
         {
-            var fileToBeUpdated = await _dBContext.FileEncryption.FindAsync(id);
+            var fileToBeUpdated = await GetEncryptedFileAsync(id);
             if (fileToBeUpdated != null)
             {
                 fileToBeUpdated.DownloadCount += 1;

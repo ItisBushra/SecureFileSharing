@@ -14,6 +14,7 @@ namespace Backend.Applications
     {
         Task<FileEncryption> CreateEncryptedFileAsync(EncryptedFileVM fileEncryption);
         Task<bool> RemoveEncryptedFileAsync(Guid id);
+        Task<FileEncryption?> GetEncryptedFileAsync(Guid id);
 
     }
     public class FileEncryptionApplication : IFileEncryptionApplication
@@ -33,9 +34,15 @@ namespace Backend.Applications
             return await fileEncryptionRepository.CreateEncryptedFileAsync(file);
         }
 
+        public async Task<FileEncryption?> GetEncryptedFileAsync(Guid id)
+        {
+            return await fileEncryptionRepository.GetEncryptedFileAsync(id);
+        }
+
         public async Task<bool> RemoveEncryptedFileAsync(Guid id)
         {
-            return await fileEncryptionRepository.RemoveEncryptedFileAsync(id);
+            return await fileEncryptionRepository
+                .RemoveEncryptedFileAsync(id);
         }
     }
 }
