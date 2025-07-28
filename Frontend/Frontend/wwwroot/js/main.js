@@ -41,8 +41,7 @@ async function SendFileToRazor(file, encrypted) {
         IV: encrypted.iv,                 
     };
     const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
-    console.log(dataToSend);
-    await fetch(window.location.pathname, {
+    const response = await fetch(window.location.pathname, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -50,6 +49,22 @@ async function SendFileToRazor(file, encrypted) {
         },
         body: JSON.stringify(dataToSend),
     });
+
+    const result = await response.json();
+    if (result.link) {
+        const linkContainer = document.getElementById('generated-link');
+        linkContainer.innerHTML = `
+              <div style="text-align:center; margin-top: 1rem;">
+               <div><strong> Click to View! </strong></div>
+                  <a href="/Index?handler=Text&id=${result.link.split('id=')[1]}" target="_blank">${result.link}</a>
+                <div style="margin-top: 0.5rem;">
+                  <a href="/Index?handler=Download&id=${result.link.split('id=')[1]}" style="color:blue; margin-right: 1rem;" target="_blank">Download Encrypted File?</a>
+                  <a href="/Index?handler=Delete&id=${result.link.split('id=')[1]}" style="color:red;" target="_blank">Remove Encrypted File?</a>
+                </div>
+              </div>
+        `;
+
+    }
 }
 
 function handleFiles(files) {

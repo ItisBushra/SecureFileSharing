@@ -3,54 +3,74 @@ using Backend.Models;
 using Frontend.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using System.Text;
 using System.Text.Json;
+using System.Threading.Tasks.Dataflow;
 
 namespace Frontend.Pages;
 
 public class IndexModel : PageModel
 {
     private readonly IFileEncryptionApplication fileEncryptionApplication;
-    public IndexModel(IFileEncryptionApplication fileEncryptionApplication)
+    private readonly IHttpContextAccessor httpContext;
+    public IndexModel(IFileEncryptionApplication fileEncryptionApplication, IHttpContextAccessor httpContext)
     {
         this.fileEncryptionApplication = fileEncryptionApplication;
-    }
-    public void OnGet()
-    {
+        this.httpContext = httpContext;
     }
 
+    [BindProperty]
+    public string GeneratedLink { get; set; }
     public async Task<IActionResult> OnPostAsync()
     {
-        if (!ModelState.IsValid)
-            return BadRequest(ModelState);
-
         using var reader = new StreamReader(Request.Body);
         var body = await reader.ReadToEndAsync();
         var fileData = JsonSerializer.Deserialize<EncryptedFileVM>(body);
         try
         {
             fileData.CreatedAt = DateTime.UtcNow;
-            await fileEncryptionApplication.CreateEncryptedFileAsync(fileData);
+            var uploadedFile = await fileEncryptionApplication.CreateEncryptedFileAsync(fileData);
+            var currentDomain = httpContext.HttpContext.Request;
+            var link = $"{currentDomain.Scheme}://{currentDomain.Host}/CipherAsText?id={uploadedFile.Id}";
+            GeneratedLink = link;
         }
         catch (Exception ex)
         {
             return BadRequest(ex.Message);
         }
-        return Page();
+        return new JsonResult(new { link = GeneratedLink });
     }
 
-    public async Task<IActionResult> OnDeleteAsync(Guid id)
+    public async Task<IActionResult> OnGetTextAsync(Guid id)
     {
-        if (!ModelState.IsValid)
-            return BadRequest(ModelState);
+        var file = await fileEncryptionApplication.GetEncryptedFileAsync(id);
+        if (file == null)
+            return NotFound("File not found");
 
-        if(id == Guid.Empty)
-        {
-            return BadRequest("The file Does not Exists or is an Empty Value!");
-        }
+        return Content(file.Ciphertext, "text/plain");
+    }
+
+    public async Task<IActionResult> OnGetDownloadAsync(Guid id)
+    {
+        var file = await fileEncryptionApplication.GetEncryptedFileAsync(id);
+        if (file == null)
+            return NotFound("File not found");
+        var bytes = Encoding.UTF8.GetBytes(file.Ciphertext); 
+        var fileName = $"{file.Name}-cipher.txt";
+
+        return File(bytes, "application/octet-stream", fileName); 
+    }
+
+
+    public async Task<IActionResult> OnGetDeleteAsync(Guid id)
+    {
+        var file = await fileEncryptionApplication.GetEncryptedFileAsync(id);
+        if(file == null) return BadRequest("The file Does not Exists or is an Empty Value!");
 
         try
         {
             await fileEncryptionApplication.RemoveEncryptedFileAsync(id);
+            TempData["SuccessMessage"] = "Encrypted file was removed successfully from our database. The link will not work anymore.";
         }
         catch (Exception ex)
         {
