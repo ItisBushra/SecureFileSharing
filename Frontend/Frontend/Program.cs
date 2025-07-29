@@ -16,6 +16,12 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddDbContext<DBContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+builder.WebHost.ConfigureKestrel(options =>
+{
+    options.Limits.MaxRequestBodySize = 5 * 1024 * 1024;
+});
+
+
 
 var app = builder.Build();
 

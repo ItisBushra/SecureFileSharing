@@ -10,9 +10,9 @@ const fileStatus = document.getElementById('file-status');
 });
 
 fileInput.addEventListener('change', (event) => {
-    updateFileStatus(fileInput.files.length);
     const files = event.target.files;
     handleFiles(files);
+    updateFileStatus(fileInput.files.length);
 });
 
 dropZone.addEventListener('drop', (event) => {
@@ -20,8 +20,8 @@ dropZone.addEventListener('drop', (event) => {
     const files = event.dataTransfer.files;
     if (files.length > 0) {
         fileInput.files = files;
-        updateFileStatus(files.length);
         handleFiles(files);
+        updateFileStatus(files.length);
     }
 });
 
@@ -38,7 +38,8 @@ async function SendFileToRazor(file, encrypted) {
     const dataToSend = {
         Name: file.name,
         Ciphertext: encrypted.ciphertext, 
-        IV: encrypted.iv,                 
+        IV: encrypted.iv,
+        Size: file.size
     };
     const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
     const response = await fetch(window.location.pathname, {
@@ -58,12 +59,13 @@ async function SendFileToRazor(file, encrypted) {
                <div><strong> Click to View! </strong></div>
                   <a href="/Index?handler=Text&id=${result.link.split('id=')[1]}" target="_blank">${result.link}</a>
                 <div style="margin-top: 0.5rem;">
-                  <a href="/Index?handler=Download&id=${result.link.split('id=')[1]}" style="color:blue; margin-right: 1rem;" target="_blank">Download Encrypted File?</a>
-                  <a href="/Index?handler=Delete&id=${result.link.split('id=')[1]}" style="color:red;" target="_blank">Remove Encrypted File?</a>
+                  <a href="/Index?handler=Download&id=${result.link.split('id=')[1]}" 
+                  style="color:blue; margin-right: 1rem;">Download Encrypted File?</a>
+                  <a href="/Index?handler=Delete&id=${result.link.split('id=')[1]}" style="color:red;"
+                  >Remove Encrypted File?</a>
                 </div>
               </div>
         `;
-
     }
 }
 
@@ -74,7 +76,16 @@ function handleFiles(files) {
             console.error("No file selected.");
             return;
         }
+        const maxSize = 5 * 1024 * 1024;
+        if (file.size > maxSize) {
+            const linkContainer = document.getElementById('file-size-warning');
+            linkContainer.innerHTML = `
+              <div style="text-align:center; margin-top: 1rem;">
+                <span style="color:red;">The selected file is too large. Please upload a file under 5MB</span>
+              </div>`;
 
+            return;
+        }
         const reader = new FileReader();
         reader.onload = async function () {
             const arrayBuffer = new Uint8Array(reader.result);
@@ -107,8 +118,18 @@ async function encryptData(fileContent) {
 
     const rawKey = await crypto.subtle.exportKey("raw", key);
     return {
-        ciphertext: btoa(String.fromCharCode(...new Uint8Array(encryptedContent))),
-        iv: btoa(String.fromCharCode(...iv)),
-        key: btoa(String.fromCharCode(...new Uint8Array(rawKey))),
+        ciphertext: uint8ArrayToBase64(new Uint8Array(encryptedContent)),
+        iv: uint8ArrayToBase64(iv),
+        key: uint8ArrayToBase64(new Uint8Array(rawKey)),
     };
+
+}
+
+function uint8ArrayToBase64(uint8Array) {
+    let binary = '';
+    const len = uint8Array.length;
+    for (let i = 0; i < len; i++) {
+        binary += String.fromCharCode(uint8Array[i]);
+    }
+    return btoa(binary);
 }

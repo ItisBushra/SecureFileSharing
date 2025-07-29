@@ -26,6 +26,15 @@ public class IndexModel : PageModel
         using var reader = new StreamReader(Request.Body);
         var body = await reader.ReadToEndAsync();
         var fileData = JsonSerializer.Deserialize<EncryptedFileVM>(body);
+
+
+        using var doc = JsonDocument.Parse(body);
+        int size = doc.RootElement.GetProperty("Size").GetInt32();
+        if (size > 500000)
+        {
+            TempData["WarningMessage"] = "The selected file is too large. Please upload a file under 5MB";
+            return Page();
+        }
         try
         {
             fileData.CreatedAt = DateTime.UtcNow;
