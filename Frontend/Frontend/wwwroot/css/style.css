@@ -107,7 +107,7 @@ a, a:hover {
     cursor: pointer;
     justify-self: center;
     width: 165px;
-    /*display: hidden;*/
+    display: none;
     height: 50px;
     background-image: linear-gradient(to top, #D8D9DB 0%, #fff 80%, #FDFDFD 100%);
     border-radius: 7px;
@@ -118,4 +118,5 @@ a, a:hover {
     color: #606060;
     text-shadow: 0 1px #fff;
 }
+
 /*button styling ended**/

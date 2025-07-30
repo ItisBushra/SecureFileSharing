@@ -1,34 +1,11 @@
-const dropZone = document.getElementById('drop-zone');
-const fileInput = document.getElementById('file');
-const fileStatus = document.getElementById('file-status');
-
-['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-    dropZone.addEventListener(eventName, e => {
-        e.preventDefault();
-        e.stopPropagation();
-    });
-});
-
-fileInput.addEventListener('change', (event) => {
-    const files = event.target.files;
-    handleFile(files);
-});
-
-dropZone.addEventListener('drop', (event) => {
-    event.preventDefault(); 
-    const files = event.dataTransfer.files;
-    if (files.length > 0) {
-        fileInput.files = files;
-        handleFile(files);
-    }
-});
-
-async function SendFileToRazor(file, encrypted) {
+async function SendFileToRazor(file, encrypted, experationDate, autoDelete) {
     const dataToSend = {
         Name: file.name,
         Ciphertext: encrypted.ciphertext, 
         IV: encrypted.iv,
-        Size: file.size
+        Size: file.size,
+        ExperationDate: experationDate?.toISOString(),
+        OnDelete: autoDelete
     };
     const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
     const response = await fetch(window.location.pathname, {
@@ -58,23 +35,10 @@ async function SendFileToRazor(file, encrypted) {
     }
 }
 
-function handleFile(files) {
+function handleFile(files, experationDate, autoDelete) {
+    console.log("the function is triggered here");
     const maxSize = 5 * 1024 * 1024;
-        if (!files || files.length == 0) {
-            console.error("No file selected.");
-            return;
-        }
-        if (files.length !== 1) {
-            fileInput.value = '';
-            const fileNumberContainer = document.getElementById('file-number-warning');
-            fileNumberContainer.innerHTML = `
-              <div style="text-align:center; margin-top: 1rem;">
-                <span style="color:red;">Please upload only one file.</span>
-              </div>`;
-
-            return;
-        }
-        const file = files[0];
+    const file = files[0];
         if (file.size > maxSize) {
             const linkContainer = document.getElementById('file-size-warning');
             linkContainer.innerHTML = `
@@ -84,14 +48,13 @@ function handleFile(files) {
 
             return;
         }
-        const reader = new FileReader();
-        reader.onload = async function () {
-            const arrayBuffer = new Uint8Array(reader.result);
-            const encrypted = await encryptData(arrayBuffer);
-            await SendFileToRazor(file, encrypted);
-        };
-
-        reader.readAsArrayBuffer(file);
+    const reader = new FileReader();
+    reader.onload = async function () {
+        const arrayBuffer = new Uint8Array(reader.result);
+        const encrypted = await encryptData(arrayBuffer, experationDate);
+        await SendFileToRazor(file, encrypted, experationDate, autoDelete);
+    };
+    reader.readAsArrayBuffer(file);
 }
 
 

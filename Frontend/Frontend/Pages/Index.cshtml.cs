@@ -3,9 +3,11 @@ using Backend.Models;
 using Frontend.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using System.Diagnostics.Metrics;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks.Dataflow;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Frontend.Pages;
 
@@ -27,6 +29,7 @@ public class IndexModel : PageModel
         var body = await reader.ReadToEndAsync();
         var fileData = JsonSerializer.Deserialize<EncryptedFileVM>(body);
 
+        //4 - the link should not work after the date is reached
 
         using var doc = JsonDocument.Parse(body);
         int size = doc.RootElement.GetProperty("Size").GetInt32();
