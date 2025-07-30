@@ -22,6 +22,9 @@ namespace Backend.Data
 
             modelBuilder.Entity<FileEncryption>()
                 .Property(f => f.isExpired).HasDefaultValue(false);
+
+            modelBuilder.Entity<FileEncryption>()
+                 .Property(f => f.onDelete).HasDefaultValue(false);
         }
     }
 }

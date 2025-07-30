@@ -16,5 +16,6 @@ namespace Backend.Models
         public DateTime? ExperationDate { get; set; }
         public int DownloadCount { get; set; }
         public bool isExpired { get; set; }
+        public bool onDelete { get; set; }
     }
 }

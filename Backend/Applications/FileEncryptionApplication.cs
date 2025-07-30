@@ -31,6 +31,9 @@ namespace Backend.Applications
             file.Ciphertext = fileEncryption.Ciphertext;
             file.CreatedAt = fileEncryption.CreatedAt;
             file.Name = fileEncryption.Name;
+            file.ExperationDate = fileEncryption.ExperationDate;
+            file.isExpired = fileEncryption.IsExpired;
+            file.onDelete = fileEncryption.OnDelete;  
             return await fileEncryptionRepository.CreateEncryptedFileAsync(file);
         }
 

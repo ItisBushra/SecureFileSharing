@@ -8,5 +8,7 @@
         public DateTime CreatedAt { get; set; }
         public DateTime? ExperationDate { get; set; }
         public int DownloadCount { get; set; }
+        public bool IsExpired { get; set; }
+        public bool OnDelete { get; set; }
     }
 }
