@@ -11,8 +11,7 @@ const fileStatus = document.getElementById('file-status');
 
 fileInput.addEventListener('change', (event) => {
     const files = event.target.files;
-    handleFiles(files);
-    updateFileStatus(fileInput.files.length);
+    handleFile(files);
 });
 
 dropZone.addEventListener('drop', (event) => {
@@ -20,19 +19,9 @@ dropZone.addEventListener('drop', (event) => {
     const files = event.dataTransfer.files;
     if (files.length > 0) {
         fileInput.files = files;
-        handleFiles(files);
-        updateFileStatus(files.length);
+        handleFile(files);
     }
 });
-
-function updateFileStatus(count) {
-    fileStatus.className = 'upload-status';
-    if (count != 0) {
-        fileStatus.textContent = `${count} file${count > 1 ? 's' : ''} uploaded!`;
-
-    }
-}
-
 
 async function SendFileToRazor(file, encrypted) {
     const dataToSend = {
@@ -69,14 +58,23 @@ async function SendFileToRazor(file, encrypted) {
     }
 }
 
-function handleFiles(files) {
-    Object.keys(files).forEach((i) => {
-        const file = files[i];
-        if (!file) {
+function handleFile(files) {
+    const maxSize = 5 * 1024 * 1024;
+        if (!files || files.length == 0) {
             console.error("No file selected.");
             return;
         }
-        const maxSize = 5 * 1024 * 1024;
+        if (files.length !== 1) {
+            fileInput.value = '';
+            const fileNumberContainer = document.getElementById('file-number-warning');
+            fileNumberContainer.innerHTML = `
+              <div style="text-align:center; margin-top: 1rem;">
+                <span style="color:red;">Please upload only one file.</span>
+              </div>`;
+
+            return;
+        }
+        const file = files[0];
         if (file.size > maxSize) {
             const linkContainer = document.getElementById('file-size-warning');
             linkContainer.innerHTML = `
@@ -94,7 +92,6 @@ function handleFiles(files) {
         };
 
         reader.readAsArrayBuffer(file);
-    });
 }
 
 
@@ -124,7 +121,6 @@ async function encryptData(fileContent) {
     };
 
 }
-
 function uint8ArrayToBase64(uint8Array) {
     let binary = '';
     const len = uint8Array.length;

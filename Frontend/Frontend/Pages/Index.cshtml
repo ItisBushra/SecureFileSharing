@@ -32,15 +32,15 @@
                     <div class="text">
                         <span>Click or drag & drop to upload a file</span>
                     </div>
-                    <input type="file" id="file" multiple>
+                    <input type="file" id="file">
                 </label>
-                <div id="file-status"></div>
                <div id="file-size-warning">
                 @if (TempData["WarningMessage"] != null)
                 {
                     @TempData["WarningMessage"]
                 }
                 </div>
+                <div id="file-number-warning" ></div>
             </div>
             <div class="col-lg-12 text-center">
                 <div id="generated-link" class="text-black pt-2 text-center"></div>
