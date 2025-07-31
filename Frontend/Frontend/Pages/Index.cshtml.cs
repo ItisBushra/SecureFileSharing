@@ -28,9 +28,7 @@ public class IndexModel : PageModel
         using var reader = new StreamReader(Request.Body);
         var body = await reader.ReadToEndAsync();
         var fileData = JsonSerializer.Deserialize<EncryptedFileVM>(body);
-
-        //4 - the link should not work after the date is reached
-
+        
         using var doc = JsonDocument.Parse(body);
         int size = doc.RootElement.GetProperty("Size").GetInt32();
         if (size > 500000)
@@ -73,7 +71,6 @@ public class IndexModel : PageModel
         return File(bytes, "application/octet-stream", fileName); 
     }
 
-
     public async Task<IActionResult> OnGetDeleteAsync(Guid id)
     {
         var file = await fileEncryptionApplication.GetEncryptedFileAsync(id);
@@ -90,4 +87,5 @@ public class IndexModel : PageModel
         }
         return RedirectToPage("Index");
     }
+
 }

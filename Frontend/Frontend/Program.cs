@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Backend.Repository;
 using Backend.Repositories.IRepositories;
 using Backend.Applications;
+using Backend.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,6 +12,7 @@ builder.Services.AddRazorPages();
 builder.Services.AddScoped<IFileEncryptionRepository, FileEncryptionRepository>();
 builder.Services.AddScoped<IFileEncryptionApplication, FileEncryptionApplication>();
 builder.Services.AddHttpContextAccessor();
+builder.Services.AddHostedService<CheckLinkLifeTimeService>();
 
 
 builder.Services.AddDbContext<DBContext>(options =>
