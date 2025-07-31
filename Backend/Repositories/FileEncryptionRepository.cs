@@ -47,7 +47,7 @@ namespace Backend.Repository
             return null;
         }
 
-        public async Task<bool> UpdateDownloadCountAsync(Guid id)
+        public async Task<bool> UpdateEncryptedFileDownloadCountAsync(Guid id)
         {
             var fileToBeUpdated = await GetEncryptedFileAsync(id);
             if (fileToBeUpdated != null)
