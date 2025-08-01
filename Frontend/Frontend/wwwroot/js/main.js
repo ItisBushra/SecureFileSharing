@@ -34,20 +34,8 @@ async function SendFileToRazor(file, encrypted, experationDate, autoDelete) {
         `;
     }
 }
-
 function handleFile(files, experationDate, autoDelete) {
-    console.log("the function is triggered here");
-    const maxSize = 5 * 1024 * 1024;
     const file = files[0];
-        if (file.size > maxSize) {
-            const linkContainer = document.getElementById('file-size-warning');
-            linkContainer.innerHTML = `
-              <div style="text-align:center; margin-top: 1rem;">
-                <span style="color:red;">The selected file is too large. Please upload a file under 5MB</span>
-              </div>`;
-
-            return;
-        }
     const reader = new FileReader();
     reader.onload = async function () {
         const arrayBuffer = new Uint8Array(reader.result);
@@ -56,7 +44,6 @@ function handleFile(files, experationDate, autoDelete) {
     };
     reader.readAsArrayBuffer(file);
 }
-
 
 async function GenerateKey() {
     const key = await crypto.subtle.generateKey(
