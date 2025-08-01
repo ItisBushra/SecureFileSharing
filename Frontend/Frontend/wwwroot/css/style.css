@@ -85,7 +85,6 @@ html, body {
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 52vh;
     display: flex;
     flex-direction: column;
 }
@@ -120,3 +119,28 @@ a, a:hover {
 }
 
 /*button styling ended**/
+.tabs-styling {
+    justify-items: center;
+}
+.tabs-styling .nav-link {
+        color: #333; 
+}
+.tabs-styling s .nav-link.active {
+        color: #000;
+}
+
+.form-control:focus {
+    box-shadow: none !important;
+    border-color: #ced4da !important;
+}
+
+.link-input-container .form-control:focus {
+    box-shadow: none;
+    border-color: #ced4da;
+    outline: none;
+}
+
+.link-input-container .input-group:focus-within {
+    box-shadow: none;
+}
+/*decryption tab styling ended**/
