@@ -1,6 +1,23 @@
 ﻿var dateBtn = document.getElementById('experationBtn');
 
 document.addEventListener('DOMContentLoaded', function () {
+    const tabs = document.querySelectorAll('.nav-tabs .nav-link');
+
+    tabs.forEach(tab => {
+        tab.addEventListener('click', function () {
+            const tabId = this.getAttribute('data-tab');
+            localStorage.setItem('activeTab', tabId);
+        });
+    });
+
+    const savedTab = localStorage.getItem('activeTab');
+    if (savedTab) {
+        const tabToActivate = document.querySelector(`.nav-link[data-tab="${savedTab}"]`);
+        if (tabToActivate) {
+            tabToActivate.click();
+        }
+    }
+
     Object.entries({
         encryption: {
             dropZone: document.getElementById('drop-zone-enc'),
