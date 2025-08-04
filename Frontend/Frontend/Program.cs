@@ -12,6 +12,7 @@ builder.Services.AddRazorPages();
 builder.Services.AddScoped<IFileEncryptionRepository, FileEncryptionRepository>();
 builder.Services.AddScoped<IFileEncryptionApplication, FileEncryptionApplication>();
 builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<ValidateLink>();
 builder.Services.AddHostedService<CheckLinkLifeTimeService>();
 
 

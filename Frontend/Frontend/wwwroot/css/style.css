@@ -143,4 +143,18 @@ a, a:hover {
 .link-input-container .input-group:focus-within {
     box-shadow: none;
 }
+.dec-button:focus {
+    outline: none !important;
+    box-shadow: none !important;
+    border-color: #ced4da !important;
+}
+.dec-button:active {
+    outline: none !important;
+    box-shadow: none !important;
+    border-color: #ced4da !important;
+}
+.link-error-styling
+{
+    color:red;
+}
 /*decryption tab styling ended**/
