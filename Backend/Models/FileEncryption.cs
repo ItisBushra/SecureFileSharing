@@ -17,5 +17,6 @@ namespace Backend.Models
         public int DownloadCount { get; set; }
         public bool isExpired { get; set; }
         public bool onDelete { get; set; }
+        public int Accessed { get; set; }
     }
 }

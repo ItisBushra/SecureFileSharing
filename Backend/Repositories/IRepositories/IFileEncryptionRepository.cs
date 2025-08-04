@@ -14,5 +14,6 @@ namespace Backend.Repositories.IRepositories
         Task<FileEncryption?> GetEncryptedFileAsync(Guid id);
         Task<bool> CheckEncryptedFileExpirationDateAsync(Guid id);
         Task<bool> UpdateEncryptedFileDownloadCountAsync(Guid id);
+        Task<bool> UpdateEncryptedFileAccessCountAsync(Guid id);
     }
 }

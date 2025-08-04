@@ -16,6 +16,7 @@ namespace Backend.Applications
         Task<bool> RemoveEncryptedFileAsync(Guid id);
         Task<FileEncryption?> GetEncryptedFileAsync(Guid id);
         Task<bool> UpdateEncryptedFileDownloadCountAsync(Guid id);
+        Task<bool> UpdateEncryptedFileAccessCountAsync(Guid id);
 
     }
     public class FileEncryptionApplication : IFileEncryptionApplication
@@ -46,6 +47,11 @@ namespace Backend.Applications
         public async Task<bool> UpdateEncryptedFileDownloadCountAsync(Guid id)
         {
             return await fileEncryptionRepository.UpdateEncryptedFileDownloadCountAsync(id);
+        }
+
+        public async Task<bool> UpdateEncryptedFileAccessCountAsync(Guid id)
+        {
+            return await fileEncryptionRepository.UpdateEncryptedFileAccessCountAsync(id);
         }
 
         public async Task<bool> RemoveEncryptedFileAsync(Guid id)

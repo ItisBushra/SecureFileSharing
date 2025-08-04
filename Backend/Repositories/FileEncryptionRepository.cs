@@ -58,5 +58,16 @@ namespace Backend.Repository
             }
             return false;
         }
+        public async Task<bool> UpdateEncryptedFileAccessCountAsync(Guid id)
+        {
+            var fileToBeUpdated = await GetEncryptedFileAsync(id);
+            if (fileToBeUpdated != null)
+            {
+                fileToBeUpdated.Accessed += 1;
+                await _dBContext.SaveChangesAsync();
+                return true;
+            }
+            return false;
+        }
     }
 }
