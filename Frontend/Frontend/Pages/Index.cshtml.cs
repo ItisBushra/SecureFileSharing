@@ -4,6 +4,7 @@ using Backend.Services;
 using Frontend.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using System.Diagnostics.Metrics;
 using System.IO;
@@ -16,7 +17,7 @@ using System.Web;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Frontend.Pages;
-
+[EnableRateLimiting("ValidateLinkPolicy")]
 public class IndexModel : PageModel
 {
     private readonly IFileEncryptionApplication fileEncryptionApplication;
@@ -31,6 +32,8 @@ public class IndexModel : PageModel
 
     [BindProperty]
     public string GeneratedLink { get; set; }
+    public string RateLimitError { get; set; }
+
     public async Task<IActionResult> OnPostAsync()
     {
         using var reader = new StreamReader(Request.Body);
@@ -92,9 +95,9 @@ public class IndexModel : PageModel
         }
         return RedirectToPage("Index");
     }
-
     public async Task<IActionResult> OnPostValidateLink(string generatedLink)
     {
+        //validate ownership or include a short-lived token --> validate link class
         var userLinkId = validateLink.ValidateLinkStructure(generatedLink);
         if (string.IsNullOrEmpty(generatedLink) || userLinkId == null)
         {
