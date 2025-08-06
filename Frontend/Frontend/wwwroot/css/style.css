@@ -139,6 +139,12 @@ a, a:hover {
     border-color: #ced4da;
     outline: none;
 }
+.link-input-container {
+    background-color: white;
+    width: 100%;
+    height: 220px;
+    padding: 12px;
+}
 
 .link-input-container .input-group:focus-within {
     box-shadow: none;
@@ -152,6 +158,9 @@ a, a:hover {
     outline: none !important;
     box-shadow: none !important;
     border-color: #ced4da !important;
+}
+.dec-button {
+    border-color: black;
 }
 .link-error-styling
 {

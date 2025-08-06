@@ -1,5 +1,4 @@
-﻿const fileInput = document.getElementById('file-enc');
-const dateButton = document.querySelector('.experation-date');
+﻿const dateButton = document.querySelector('.experation-date');
 const timePicker = document.getElementById('datetimepicker4');
 const modal = new bootstrap.Modal(document.getElementById('calendarModal'));
 let selectedExpirationDate = null;
