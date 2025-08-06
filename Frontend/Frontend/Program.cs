@@ -6,6 +6,7 @@ using Backend.Applications;
 using Backend.Services;
 using Microsoft.AspNetCore.RateLimiting;
 using System.Threading.RateLimiting;
+using Microsoft.Extensions.Caching.Memory;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,7 +17,7 @@ builder.Services.AddScoped<IFileEncryptionApplication, FileEncryptionApplication
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<ValidateLink>();
 builder.Services.AddHostedService<CheckLinkLifeTimeService>();
-
+builder.Services.AddMemoryCache();
 
 builder.Services.AddDbContext<DBContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
@@ -25,31 +26,27 @@ builder.WebHost.ConfigureKestrel(options =>
 {
     options.Limits.MaxRequestBodySize = 5 * 1024 * 1024;
 });
-builder.Services.AddSession(options => {
-    options.Cookie.HttpOnly = true;
-    options.IdleTimeout = TimeSpan.FromMinutes(5);
-});
 
 builder.Services.AddRateLimiter(options =>
 {
-    options.AddFixedWindowLimiter("ValidateLinkPolicy", opt =>
+    options.AddFixedWindowLimiter(policyName: "ValidateLinkPolicy", configureOptions: opt =>
     {
-        opt.PermitLimit = 7;
-        opt.Window = TimeSpan.FromMinutes(1); 
-        opt.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+        opt.PermitLimit = 5;
+        opt.Window = TimeSpan.FromMinutes(1);
         opt.QueueLimit = 0;
+        opt.AutoReplenishment = true;
     });
-
     options.OnRejected = async (context, _) =>
     {
-        context.HttpContext.Session.SetString("RateLimitRedirect", "true");
+        var cache = context.HttpContext.RequestServices.GetRequiredService<IMemoryCache>();
+        var ip = context.HttpContext.Connection.RemoteIpAddress?.ToString();
+        cache.Set($"RateLimited_{ip}", true, TimeSpan.FromMinutes(5));
         context.HttpContext.Response.Redirect("/error");
         await Task.CompletedTask;
     };
 });
 
 var app = builder.Build();
-app.UseSession();
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {

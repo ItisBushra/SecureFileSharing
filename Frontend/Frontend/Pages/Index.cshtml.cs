@@ -32,8 +32,6 @@ public class IndexModel : PageModel
 
     [BindProperty]
     public string GeneratedLink { get; set; }
-    public string RateLimitError { get; set; }
-
     public async Task<IActionResult> OnPostAsync()
     {
         using var reader = new StreamReader(Request.Body);
@@ -97,7 +95,7 @@ public class IndexModel : PageModel
     }
     public async Task<IActionResult> OnPostValidateLink(string generatedLink)
     {
-        //validate ownership or include a short-lived token --> validate link class
+
         var userLinkId = validateLink.ValidateLinkStructure(generatedLink);
         if (string.IsNullOrEmpty(generatedLink) || userLinkId == null)
         {
