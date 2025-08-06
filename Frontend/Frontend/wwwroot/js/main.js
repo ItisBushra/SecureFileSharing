@@ -82,3 +82,31 @@ function uint8ArrayToBase64(uint8Array) {
     }
     return btoa(binary);
 }
+
+document.getElementById("validateLinkForm").addEventListener("submit", async function (e) {
+    e.preventDefault();
+    const generatedLink = document.getElementById("dec-link").value;
+    const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
+
+    const response = await fetch("/Index?handler=ValidateLink", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+            'RequestVerificationToken': token
+        },
+        body: new URLSearchParams({
+            generatedLink: generatedLink
+        })
+    });
+    if (response.ok) {
+        const data = await response.json();
+        if (data.file) {
+            decryptData(data.file);
+        }
+    } else  return;
+    
+});
+
+//async function decryptData() {
+//   
+//}

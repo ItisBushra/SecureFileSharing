@@ -69,7 +69,6 @@
                     </div>
                 <div class="tab-pane" id="fill-tabpanel-1" role="tabpanel" aria-labelledby="fill-tab-1">
                         <div class="col-lg-12 pt-3 file-div">
-                            @Html.AntiForgeryToken()
                             <small style="color:gray;">
                                 Maximum file size allowed: 5 MB
                             </small>
@@ -90,7 +89,8 @@
                             <span class="px-3 text-muted">OR</span>
                             <hr class="flex-grow-1">
                         </div>
-                        <form method="post" asp-page-handler="ValidateLink" >
+                        <form id="validateLinkForm">
+                            @Html.AntiForgeryToken()
                             <div class="link-input-container mb-4">
                                 <div class="input-group" style="width: 100%; max-width: 800px;">
                                 <span class="input-group-text bg-white">
