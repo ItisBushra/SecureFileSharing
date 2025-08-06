@@ -17,23 +17,25 @@ namespace Backend.Services
         }
         public Guid? ValidateLinkStructure(string generatedLink)
         {
-            if (!Uri.TryCreate(generatedLink, UriKind.Absolute, out var uri))
+            if (!Uri.TryCreate(generatedLink, UriKind.Absolute, out var uri) || string.IsNullOrEmpty(generatedLink))
                 return null;
 
-            var currentDomain = $"{httpContext.HttpContext?.Request.Scheme}://{httpContext.HttpContext?.Request.Host}";
             if (!uri.AbsolutePath.Equals("/CipherAsText")) 
                 return null;
 
-            //case sensitive comparison
             var query = uri.Query.TrimStart('?');
-            var queryParams = query.Split('&')
-                .Select(p => p.Split('='))
-                .ToDictionary(p => p[0], p => p.Length > 1 ? p[1] : null);
+            int idStart = query.IndexOf("id=", StringComparison.Ordinal);
 
-            if (!queryParams.TryGetValue("id", out var idValue)) 
+            if (idStart == -1) // "id=" not found
                 return null;
-           
-            return Guid.TryParse(idValue, out var fileId) ? fileId : null;
+
+            string idValue = query.Substring(idStart + 3); 
+            int keySeparatorPos = idValue.IndexOf("/key=", StringComparison.Ordinal);
+            string guidPart = keySeparatorPos >= 0
+                ? idValue.Substring(0, keySeparatorPos)
+                : idValue;
+
+            return Guid.TryParse(guidPart, out var fileId) ? fileId : null;
         }
     }
 }

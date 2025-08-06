@@ -40,6 +40,7 @@ public class IndexModel : PageModel
         
         using var doc = JsonDocument.Parse(body);
         int size = doc.RootElement.GetProperty("Size").GetInt32();
+        string key = doc.RootElement.GetProperty("Key").ToString();
         if (size > 500000)
         {
             TempData["WarningMessage"] = "The selected file is too large. Please upload a file under 5MB";
@@ -50,7 +51,7 @@ public class IndexModel : PageModel
             fileData.CreatedAt = DateTime.UtcNow;
             var uploadedFile = await fileEncryptionApplication.CreateEncryptedFileAsync(fileData);
             var currentDomain = httpContext.HttpContext.Request;
-            var link = $"{currentDomain.Scheme}://{currentDomain.Host}/CipherAsText?id={uploadedFile.Id}";
+            var link = $"{currentDomain.Scheme}://{currentDomain.Host}/CipherAsText?id={uploadedFile.Id}/key={key}";
             GeneratedLink = link;
         }
         catch (Exception ex)
@@ -95,9 +96,8 @@ public class IndexModel : PageModel
     }
     public async Task<IActionResult> OnPostValidateLink(string generatedLink)
     {
-
         var userLinkId = validateLink.ValidateLinkStructure(generatedLink);
-        if (string.IsNullOrEmpty(generatedLink) || userLinkId == null)
+        if (string.IsNullOrEmpty(generatedLink))
         {
             TempData["LinkError"] = "Link is Invalid.";
             return Page();

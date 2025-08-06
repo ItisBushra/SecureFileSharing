@@ -5,7 +5,8 @@ async function SendFileToRazor(file, encrypted, experationDate, autoDelete) {
         IV: encrypted.iv,
         Size: file.size,
         ExperationDate: experationDate?.toISOString(),
-        OnDelete: autoDelete
+        OnDelete: autoDelete,
+        Key: encrypted.key
     };
     const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
     const response = await fetch(window.location.pathname, {
@@ -20,14 +21,16 @@ async function SendFileToRazor(file, encrypted, experationDate, autoDelete) {
     const result = await response.json();
     if (result.link) {
         const linkContainer = document.getElementById('generated-link');
+        const fullIdParam = result.link.split('id=')[1]; 
+        const guidOnly = fullIdParam.split('/key=')[0];  
         linkContainer.innerHTML = `
               <div style="text-align:center; margin-top: 1rem;">
                <div><strong> Click to View! </strong></div>
-                  <a href="/Index?handler=Text&id=${result.link.split('id=')[1]}" target="_blank">${result.link}</a>
+                  <a href="/Index?handler=Text&id=${guidOnly}" target="_blank">${result.link}</a>
                 <div style="margin-top: 0.5rem;">
-                  <a href="/Index?handler=Download&id=${result.link.split('id=')[1]}" 
+                  <a href="/Index?handler=Download&id=${guidOnly}" 
                   style="color:blue; margin-right: 1rem;">Download Encrypted File?</a>
-                  <a href="/Index?handler=Delete&id=${result.link.split('id=')[1]}" style="color:red;"
+                  <a href="/Index?handler=Delete&id=${guidOnly}" style="color:red;"
                   >Remove Encrypted File?</a>
                 </div>
               </div>

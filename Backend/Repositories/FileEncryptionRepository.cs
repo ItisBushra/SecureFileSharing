@@ -16,11 +16,6 @@ namespace Backend.Repository
         {
             _dBContext = dBContext;
         }
-        public Task<bool> CheckEncryptedFileExpirationDateAsync(Guid id)
-        {
-            throw new NotImplementedException();
-        }
-
         public async Task<FileEncryption> CreateEncryptedFileAsync(FileEncryption fileEncryption)
         {
             await _dBContext.FileEncryption.AddAsync(fileEncryption);
