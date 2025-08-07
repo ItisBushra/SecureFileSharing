@@ -82,7 +82,6 @@ function uint8ArrayToBase64(uint8Array) {
     }
     return btoa(binary);
 }
-
 function base64ToUint8Array(base64) {
     const binary = atob(base64);
     const len = binary.length;
@@ -141,7 +140,6 @@ async function decryptData(fileContent, decryptionKey) {
         key,
         ciphertext
     );
-
     //find file type
     FindFileTypeAndDecrypt(fileContent, decrypted);
 }
@@ -155,7 +153,7 @@ function FindFileTypeAndDecrypt(file, cipherText) {
     switch (fileType) {
         case "txt":
             decryptedContent = new TextDecoder('utf-8').decode(cipherText);
-            CreateFile(decryptedContent, "text/plain");
+            CreateFile(decryptedContent, "text/plain", fileName);
             break;
         //case y:
         //    // code block
@@ -164,12 +162,12 @@ function FindFileTypeAndDecrypt(file, cipherText) {
         // code block
     }
 }
-function CreateFile(content, fileType) {
+function CreateFile(content, fileType, fileName) {
     const link = document.createElement('a');
     link.href = URL.createObjectURL(
         new Blob([content], { type: fileType })
     );
-    link.download = file.name;
+    link.download = fileName;
     link.click();
 
     setTimeout(() => {
