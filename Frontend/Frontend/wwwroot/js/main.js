@@ -83,6 +83,16 @@ function uint8ArrayToBase64(uint8Array) {
     return btoa(binary);
 }
 
+function base64ToUint8Array(base64) {
+    const binary = atob(base64);
+    const len = binary.length;
+    const bytes = new Uint8Array(len);
+    for (let i = 0; i < len; i++) {
+        bytes[i] = binary.charCodeAt(i);
+    }
+    return bytes;
+}
+
 document.getElementById("validateLinkForm").addEventListener("submit", async function (e) {
     e.preventDefault();
     const generatedLink = document.getElementById("dec-link").value;
@@ -100,13 +110,70 @@ document.getElementById("validateLinkForm").addEventListener("submit", async fun
     });
     if (response.ok) {
         const data = await response.json();
+        const idAndKey = generatedLink.split('id=')[1];
+        const parts = idAndKey.split('/key=');
         if (data.file) {
-            decryptData(data.file);
+            decryptData(data.file, parts[1]);
         }
     } else  return;
     
 });
 
-//async function decryptData() {
-//   
-//}
+async function decryptData(fileContent, decryptionKey) {
+    const keyData = base64ToUint8Array(decryptionKey);
+    const iv = base64ToUint8Array(fileContent.iv);
+    const ciphertext = base64ToUint8Array(fileContent.ciphertext);
+
+    const key = await crypto.subtle.importKey(
+        "raw",
+        keyData,
+        { name: "AES-GCM" },
+        false,
+        ["decrypt"]
+    );
+
+    const decrypted = await crypto.subtle.decrypt(
+        {
+            name: "AES-GCM",
+            iv: iv,
+            tagLength: 128
+        },
+        key,
+        ciphertext
+    );
+
+    //find file type
+    FindFileTypeAndDecrypt(fileContent, decrypted);
+}
+ 
+function FindFileTypeAndDecrypt(file, cipherText) {
+    var fileName = file.name;
+    const lastDotIndex = fileName.lastIndexOf('.');
+    var fileType = fileName.slice(lastDotIndex + 1);
+    let decryptedContent;
+
+    switch (fileType) {
+        case "txt":
+            decryptedContent = new TextDecoder('utf-8').decode(cipherText);
+            CreateFile(decryptedContent, "text/plain");
+            break;
+        //case y:
+        //    // code block
+        //    break;
+        //default:
+        // code block
+    }
+}
+function CreateFile(content, fileType) {
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(
+        new Blob([content], { type: fileType })
+    );
+    link.download = file.name;
+    link.click();
+
+    setTimeout(() => {
+        URL.revokeObjectURL(url);
+        link.remove();
+    }, 100);
+}
