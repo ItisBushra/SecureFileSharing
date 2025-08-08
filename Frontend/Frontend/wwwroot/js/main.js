@@ -158,21 +158,7 @@ function FindFileTypeAndDecrypt(file, cipherText) {
     const lastDotIndex = fileName.lastIndexOf('.');
     var fileType = fileName.slice(lastDotIndex + 1);
     let decryptedContent;
-    const typeWarning = document.getElementById("file-type-warning-enc");
-    let isValidForDec = false;
-    fileTypes.forEach(allowedType => {
-        if (fileType === allowedType) {
-            isValidForDec = true;
-        }
-    });
-    if (isValidForDec == false) {
-        typeWarning.innerHTML = `
-        <div style="text-align:center; margin-top: 1rem;">
-            <span style="color:red;">The provided link format cannot be decrypted, Please check the link and try again.</span>
-        </div>`;
-        return;
-    }
-
+   
     if (fileType == "txt" || fileType == "json" || fileType == "xml" || fileType == "html" || fileType == "css") {
         decryptedContent = new TextDecoder('utf-8').decode(cipherText);
         CreateFile(decryptedContent, file.type, fileName);
