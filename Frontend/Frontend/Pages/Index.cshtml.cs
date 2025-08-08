@@ -104,7 +104,7 @@ public class IndexModel : PageModel
         }
         //once validated
         await fileEncryptionApplication.UpdateEncryptedFileAccessCountAsync(userLinkId.Value);
-        if(cipherFile.Accessed > 3)
+        if(cipherFile.Accessed >= 3)
         {
             await OnGetDeleteAsync(userLinkId.Value);
             return BadRequest(new { error = "This file is no longer available." });

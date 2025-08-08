@@ -120,7 +120,9 @@ document.getElementById("validateLinkForm").addEventListener("submit", async fun
             decryptData(result.file, parts[1]);
         }
     } else {
-        LinkError.innerHTML = `Invalid link. Please check and try again.`;
+        LinkInput.value = '';
+        const errorMessage = result?.error || "Invalid link. Please check and try again.";
+        LinkError.innerHTML = `${errorMessage}`;
     }
     
 });
@@ -164,11 +166,9 @@ function FindFileTypeAndDecrypt(file, cipherText) {
         }
     });
     if (isValidForDec == false) {
-        const errorMessage = result?.error || "The provided link format cannot be decrypted, Please check the link and try again.";
-
         typeWarning.innerHTML = `
         <div style="text-align:center; margin-top: 1rem;">
-            <span style="color:red;">${errorMessage}</span>
+            <span style="color:red;">The provided link format cannot be decrypted, Please check the link and try again.</span>
         </div>`;
         return;
     }
