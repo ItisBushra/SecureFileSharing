@@ -97,13 +97,12 @@ public class IndexModel : PageModel
     public async Task<IActionResult> OnPostValidateLink(string generatedLink)
     {
         var userLinkId = validateLink.ValidateLinkStructure(generatedLink);
-        if (string.IsNullOrEmpty(generatedLink))
+        var cipherFile = await fileEncryptionApplication.GetEncryptedFileAsync(userLinkId.Value);
+        if (string.IsNullOrEmpty(generatedLink) || cipherFile == null)
         {
-            TempData["LinkError"] = "Link is Invalid.";
-            return Page();
+            return BadRequest();
         }
         //once validated
-        var cipherFile = await fileEncryptionApplication.GetEncryptedFileAsync(userLinkId.Value);
         await fileEncryptionApplication.UpdateEncryptedFileAccessCountAsync(userLinkId.Value);
         return new JsonResult(new { file = cipherFile }); // for decryption
     }

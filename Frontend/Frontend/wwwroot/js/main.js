@@ -94,8 +94,10 @@ function base64ToUint8Array(base64) {
 
 document.getElementById("validateLinkForm").addEventListener("submit", async function (e) {
     e.preventDefault();
-    const generatedLink = document.getElementById("dec-link").value;
+    const LinkInput = document.getElementById("dec-link");
+    const generatedLink = LinkInput.value;
     const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
+    const LinkError = document.getElementById("link-error");
 
     const response = await fetch("/Index?handler=ValidateLink", {
         method: "POST",
@@ -107,14 +109,19 @@ document.getElementById("validateLinkForm").addEventListener("submit", async fun
             generatedLink: generatedLink
         })
     });
+
+    const result = await response.json().catch(() => null); // Handle non-JSON responses
+
     if (response.ok) {
-        const data = await response.json();
+        if (result?.file) {
+            LinkInput.value = '';
         const idAndKey = generatedLink.split('id=')[1];
         const parts = idAndKey.split('/key=');
-        if (data.file) {
-            decryptData(data.file, parts[1]);
+            decryptData(result.file, parts[1]);
         }
-    } else  return;
+    } else {
+        LinkError.innerHTML = `Invalid link. Please check and try again.`;
+    }
     
 });
 
