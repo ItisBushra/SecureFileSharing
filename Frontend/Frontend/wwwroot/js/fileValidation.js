@@ -1,7 +1,11 @@
 ﻿const dropZone = document.getElementById('drop-zone-enc');
 const fileInput = document.getElementById('file-enc');
 const warningContainer = document.getElementById('file-number-warning-enc');
+const typeWarning = document.getElementById("file-type-warning-enc");
 const dateBtn = document.getElementById("experationBtn");
+const fileTypes = ["txt", "json", "xml", "html", "css", "png", "jpg", "jpeg", "gif", "bmp",
+    "webp", "sqlite", "db", "csv", "json", "pdf", "docx", "xlsx", "pptx", "mp3", "wav",
+    "mp4", "webm", "svg", "exe", "dll", "app"];
 
 ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
     dropZone.addEventListener(eventName, e => {
@@ -69,6 +73,24 @@ function ValidateFile(files, warningContainer, fileInput) {
 
         return;
     }
+
+    var fileName = file.name;
+    const lastDotIndex = fileName.lastIndexOf('.');
+    var fileType = fileName.slice(lastDotIndex + 1);
+    let isValid = false;
+    fileTypes.forEach(allowedType => {
+        if (fileType === allowedType) {
+            isValid = true;
+        }
+    });
+    if (isValid == false) {
+        typeWarning.innerHTML = `
+            <div style="text-align:center; margin-top: 1rem;">
+                <span style="color:red;">The uploaded file format cannot be encrypted, Please check the file and try again.</span>
+            </div>`;
+        return;
+    }
+
     //once validated
     dateBtn.style.display = 'block';
 }
