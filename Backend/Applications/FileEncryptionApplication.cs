@@ -36,6 +36,7 @@ namespace Backend.Applications
             file.ExperationDate = fileEncryption.ExperationDate;
             file.isExpired = fileEncryption.IsExpired;
             file.onDelete = fileEncryption.OnDelete;  
+            file.Type = fileEncryption.Type;
             return await fileEncryptionRepository.CreateEncryptedFileAsync(file);
         }
 

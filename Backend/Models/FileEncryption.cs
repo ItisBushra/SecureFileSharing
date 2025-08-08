@@ -10,6 +10,7 @@ namespace Backend.Models
     {
         public Guid Id { get; set; } = Guid.NewGuid();
         public string Name { get; set; }
+        public string Type { get; set; }
         public string Ciphertext { get; set; }
         public string IV { get; set; }
         public DateTime CreatedAt { get; set; }
