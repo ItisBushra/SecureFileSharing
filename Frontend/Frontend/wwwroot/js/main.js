@@ -164,9 +164,11 @@ function FindFileTypeAndDecrypt(file, cipherText) {
         }
     });
     if (isValidForDec == false) {
+        const errorMessage = result?.error || "The provided link format cannot be decrypted, Please check the link and try again.";
+
         typeWarning.innerHTML = `
         <div style="text-align:center; margin-top: 1rem;">
-            <span style="color:red;">The provided link format cannot be decrypted, Please check the link and try again.</span>
+            <span style="color:red;">${errorMessage}</span>
         </div>`;
         return;
     }
