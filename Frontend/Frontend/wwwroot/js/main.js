@@ -6,7 +6,8 @@ async function SendFileToRazor(file, encrypted, experationDate, autoDelete) {
         Size: file.size,
         ExperationDate: experationDate?.toISOString(),
         OnDelete: autoDelete,
-        Key: encrypted.key
+        Key: encrypted.key,
+        Type: file.type
     };
     const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
     const response = await fetch(window.location.pathname, {
@@ -17,7 +18,6 @@ async function SendFileToRazor(file, encrypted, experationDate, autoDelete) {
         },
         body: JSON.stringify(dataToSend),
     });
-
     const result = await response.json();
     if (result.link) {
         const linkContainer = document.getElementById('generated-link');
@@ -115,8 +115,8 @@ document.getElementById("validateLinkForm").addEventListener("submit", async fun
     if (response.ok) {
         if (result?.file) {
             LinkInput.value = '';
-        const idAndKey = generatedLink.split('id=')[1];
-        const parts = idAndKey.split('/key=');
+            const idAndKey = generatedLink.split('id=')[1];
+            const parts = idAndKey.split('/key=');
             decryptData(result.file, parts[1]);
         }
     } else {
@@ -150,24 +150,35 @@ async function decryptData(fileContent, decryptionKey) {
     //find file type
     FindFileTypeAndDecrypt(fileContent, decrypted);
 }
- 
 function FindFileTypeAndDecrypt(file, cipherText) {
-    var fileName = file.name;
+    const fileName = file.name;
+    console.log(file.name);
     const lastDotIndex = fileName.lastIndexOf('.');
     var fileType = fileName.slice(lastDotIndex + 1);
     let decryptedContent;
-
-    switch (fileType) {
-        case "txt":
-            decryptedContent = new TextDecoder('utf-8').decode(cipherText);
-            CreateFile(decryptedContent, "text/plain", fileName);
-            break;
-        //case y:
-        //    // code block
-        //    break;
-        //default:
-        // code block
+    const typeWarning = document.getElementById("file-type-warning-enc");
+    let isValidForDec = false;
+    fileTypes.forEach(allowedType => {
+        if (fileType === allowedType) {
+            isValidForDec = true;
+        }
+    });
+    if (isValidForDec == false) {
+        typeWarning.innerHTML = `
+        <div style="text-align:center; margin-top: 1rem;">
+            <span style="color:red;">The provided link format cannot be decrypted, Please check the link and try again.</span>
+        </div>`;
+        return;
     }
+
+    if (fileType == "txt" || fileType == "json" || fileType == "xml" || fileType == "html" || fileType == "css") {
+        decryptedContent = new TextDecoder('utf-8').decode(cipherText);
+        CreateFile(decryptedContent, file.type, fileName);
+    }
+    else {
+        decryptedContent = new Uint8Array(cipherText);
+        CreateFile(decryptedContent, file.type, fileName);
+    }    
 }
 function CreateFile(content, fileType, fileName) {
     const link = document.createElement('a');
@@ -178,7 +189,7 @@ function CreateFile(content, fileType, fileName) {
     link.click();
 
     setTimeout(() => {
-        URL.revokeObjectURL(url);
+        URL.revokeObjectURL(link.href);
         link.remove();
     }, 100);
 }

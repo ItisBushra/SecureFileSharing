@@ -5,7 +5,7 @@ const typeWarning = document.getElementById("file-type-warning-enc");
 const dateBtn = document.getElementById("experationBtn");
 const fileTypes = ["txt", "json", "xml", "html", "css", "png", "jpg", "jpeg", "gif", "bmp",
     "webp", "sqlite", "db", "csv", "json", "pdf", "docx", "xlsx", "pptx", "mp3", "wav",
-    "mp4", "webm", "svg", "exe", "dll", "app"];
+    "mp4", "webm", "svg", "exe", "dll", "app", "sql"];
 
 ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
     dropZone.addEventListener(eventName, e => {
