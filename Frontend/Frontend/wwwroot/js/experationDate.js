@@ -36,11 +36,15 @@ document.getElementById("saveDateBtn")?.addEventListener("click", function () {
     dateButton.style.display = 'none';
     modal.hide();
     finalDate = selectedExpirationDate;
-    handleFile(fileInput.files, finalDate, autoDelete);
+    const passwordInput = document.getElementById('password').value;
+    console.log(passwordInput);
+    handleFile(fileInput.files, finalDate, autoDelete, passwordInput);
 });
 
 document.getElementById("noExpirationBtn")?.addEventListener("click", function () {
     modal.hide();
     dateButton.style.display = 'none';
-    handleFile(fileInput.files, null, false);
+    const passwordInput = document.getElementById('password').value;
+    console.log(passwordInput);
+    handleFile(fileInput.files, null, false, passwordInput);
 });
