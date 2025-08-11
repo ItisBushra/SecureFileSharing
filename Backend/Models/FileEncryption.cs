@@ -13,6 +13,8 @@ namespace Backend.Models
         public string Type { get; set; }
         public string Ciphertext { get; set; }
         public string IV { get; set; }
+        public string Salt { get; set; }
+        public string PublicFragment { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime? ExperationDate { get; set; }
         public int DownloadCount { get; set; }
