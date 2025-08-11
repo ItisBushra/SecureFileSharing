@@ -6,8 +6,10 @@ async function SendFileToRazor(file, encrypted, experationDate, autoDelete) {
         Size: file.size,
         ExperationDate: experationDate?.toISOString(),
         OnDelete: autoDelete,
-        Key: encrypted.key,
-        Type: file.type
+        Salt: encrypted.salt,
+        Type: file.type,
+        PublicFragment: encrypted.publicFragment,
+        PrivateFragment: encrypted.privateFragment
     };
     const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
     const response = await fetch(window.location.pathname, {
@@ -37,42 +39,88 @@ async function SendFileToRazor(file, encrypted, experationDate, autoDelete) {
         `;
     }
 }
-function handleFile(files, experationDate, autoDelete) {
+function handleFile(files, experationDate, autoDelete, passwordValue) {
     const file = files[0];
     const reader = new FileReader();
     reader.onload = async function () {
         const arrayBuffer = new Uint8Array(reader.result);
-        const encrypted = await encryptData(arrayBuffer, experationDate);
+        const encrypted = await encryptData(arrayBuffer, passwordValue);
         await SendFileToRazor(file, encrypted, experationDate, autoDelete);
     };
     reader.readAsArrayBuffer(file);
 }
 
-async function GenerateKey() {
-    const key = await crypto.subtle.generateKey(
+async function generateKeyFragment(derivedKey) {
+    const rawDerivedKey = await window.crypto.subtle.exportKey("raw", derivedKey);
+    const rawDerivedKeyBytes = new Uint8Array(rawDerivedKey);
+    const keyFragment = window.crypto.getRandomValues(
+        new Uint8Array(rawDerivedKeyBytes.length)
+    );
+    const encryptionKey = new Uint8Array(rawDerivedKeyBytes.length);
+    for (let i = 0; i < rawDerivedKeyBytes.length; i++) {
+        encryptionKey[i] = rawDerivedKeyBytes[i] ^ keyFragment[i];
+    }
+    return { encryptionKey, keyFragment };
+}
+
+async function deriveKey(password, salt) {
+    const encodedPassword = new TextEncoder().encode(password);
+    const baseKey = await window.crypto.subtle.importKey(
+        "raw",
+        encodedPassword,
+        { name: "PBKDF2" },
+        false,
+        ["deriveKey"],
+    );
+
+    const derivedKey = await window.crypto.subtle.deriveKey(
+        {
+            name: "PBKDF2",
+            salt: salt,
+            iterations: 600000,
+            hash: "SHA-256",
+        },
+        baseKey,
         { name: "AES-GCM", length: 256 },
         true,
         ["encrypt", "decrypt"]
     );
-    return key;
+
+    return derivedKey;
 }
 
-async function encryptData(fileContent) {
+async function encryptData(data, password) {
+    const salt = window.crypto.getRandomValues(new Uint8Array(16));
+    const derivedKey = await deriveKey(password, salt);
     const iv = window.crypto.getRandomValues(new Uint8Array(12));
-    const key = await GenerateKey();
-    const encryptedContent = await crypto.subtle.encrypt(
-        { name: "AES-GCM", iv: iv, tagLength: 128 },
-        key,
-        fileContent
+    const { encryptionKey: rawEncryptionKey, keyFragment } = await generateKeyFragment(derivedKey);
+    const encryptionKey = await window.crypto.subtle.importKey(
+        "raw",
+        rawEncryptionKey,
+        { name: "AES-GCM" },
+        true,
+        ["encrypt"] 
     );
 
-    const rawKey = await crypto.subtle.exportKey("raw", key);
-    return {
-        ciphertext: uint8ArrayToBase64(new Uint8Array(encryptedContent)),
-        iv: uint8ArrayToBase64(iv),
-        key: uint8ArrayToBase64(new Uint8Array(rawKey)),
-    };
+    const encryptedContent = await window.crypto.subtle.encrypt(
+        { name: "AES-GCM", iv: iv, tagLength: 128 },
+        encryptionKey,
+        data
+    );
+    const publicFragment = keyFragment.slice(0, keyFragment.length / 2);
+    const privateFragment = keyFragment.slice(keyFragment.length / 2);
+    const ciphertext = encryptedContent.slice(
+        0,
+        encryptedContent.byteLength - 16,
+    );
 
+    return {
+        ciphertext: uint8ArrayToBase64(new Uint8Array(ciphertext)),
+        iv: uint8ArrayToBase64(iv),
+        salt: uint8ArrayToBase64(salt),
+        privateFragment: uint8ArrayToBase64(privateFragment),
+        publicFragment: uint8ArrayToBase64(publicFragment),
+    };
 }
 function uint8ArrayToBase64(uint8Array) {
     let binary = '';
@@ -115,9 +163,13 @@ document.getElementById("validateLinkForm").addEventListener("submit", async fun
     if (response.ok) {
         if (result?.file) {
             LinkInput.value = '';
-            const idAndKey = generatedLink.split('id=')[1];
-            const parts = idAndKey.split('/key=');
-            decryptData(result.file, parts[1]);
+            try {
+                await decryptData(result.file, password);
+
+            }
+            catch (error) {
+                return error;
+            }
         }
     } else {
         LinkInput.value = '';

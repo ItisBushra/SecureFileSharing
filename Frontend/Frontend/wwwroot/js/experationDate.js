@@ -37,7 +37,6 @@ document.getElementById("saveDateBtn")?.addEventListener("click", function () {
     modal.hide();
     finalDate = selectedExpirationDate;
     const passwordInput = document.getElementById('password').value;
-    console.log(passwordInput);
     handleFile(fileInput.files, finalDate, autoDelete, passwordInput);
 });
 
@@ -45,6 +44,5 @@ document.getElementById("noExpirationBtn")?.addEventListener("click", function (
     modal.hide();
     dateButton.style.display = 'none';
     const passwordInput = document.getElementById('password').value;
-    console.log(passwordInput);
     handleFile(fileInput.files, null, false, passwordInput);
 });
