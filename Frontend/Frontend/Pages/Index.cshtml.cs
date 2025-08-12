@@ -37,26 +37,26 @@ public class IndexModel : PageModel
         using var reader = new StreamReader(Request.Body);
         var body = await reader.ReadToEndAsync();
         var fileData = JsonSerializer.Deserialize<EncryptedFileVM>(body);
-        
+
         using var doc = JsonDocument.Parse(body);
         int size = doc.RootElement.GetProperty("Size").GetInt32();
         string privateFragments = doc.RootElement.GetProperty("PrivateFragment").ToString();
         if (size > 500000)
         {
-            TempData["WarningMessage"] = "The selected file is too large. Please upload a file under 5MB";
-            return Page();
+            return BadRequest(new { error = "The selected file is too large. Please upload a file under 5MB" });
         }
         try
         {
-            fileData.CreatedAt = DateTime.UtcNow;
-            var uploadedFile = await fileEncryptionApplication.CreateEncryptedFileAsync(fileData);
-            var currentDomain = httpContext.HttpContext.Request;
-            var link = $"{currentDomain.Scheme}://{currentDomain.Host}/CipherAsText?id={uploadedFile.Id}/key={privateFragments}";
-            GeneratedLink = link;
-        }
-        catch (Exception ex)
+           fileData.CreatedAt = DateTime.UtcNow;
+           var uploadedFile = await fileEncryptionApplication.CreateEncryptedFileAsync(fileData);
+           var currentDomain = httpContext.HttpContext.Request;
+           var link = $"{currentDomain.Scheme}://{currentDomain.Host}/CipherAsText?id={uploadedFile.Id}/key={privateFragments}";
+           GeneratedLink = link;
+        }          
+        catch(Exception ex)
         {
-            return BadRequest(ex.Message);
+            return BadRequest(new { error = ex });
+
         }
         return new JsonResult(new { link = GeneratedLink });
     }
