@@ -94,13 +94,13 @@ public class IndexModel : PageModel
         }
         return RedirectToPage("Index");
     }
-    public async Task<IActionResult> OnPostValidateLink(string generatedLink)
+    public async Task<IActionResult> OnPostValidateLink(string generatedLink, string passwordInput)
     {
         var userLinkId = validateLink.ValidateLinkStructure(generatedLink);
         var cipherFile = await fileEncryptionApplication.GetEncryptedFileAsync(userLinkId.Value);
-        if (string.IsNullOrEmpty(generatedLink) || cipherFile == null)
+        if (string.IsNullOrEmpty(generatedLink) || cipherFile == null || passwordInput == null)
         {
-            return BadRequest();
+            return BadRequest(new { error = "The Link or Password Provided are incorrect." });
         }
         //once validated
         await fileEncryptionApplication.UpdateEncryptedFileAccessCountAsync(userLinkId.Value);

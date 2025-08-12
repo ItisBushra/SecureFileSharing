@@ -144,6 +144,7 @@ document.getElementById("validateLinkForm").addEventListener("submit", async fun
     e.preventDefault();
     const LinkInput = document.getElementById("dec-link");
     const generatedLink = LinkInput.value;
+    const passwordInput = document.getElementById('passwordInput').value;
     const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
     const LinkError = document.getElementById("link-error");
 
@@ -154,7 +155,9 @@ document.getElementById("validateLinkForm").addEventListener("submit", async fun
             'RequestVerificationToken': token
         },
         body: new URLSearchParams({
-            generatedLink: generatedLink
+            
+            generatedLink: generatedLink,
+            passwordInput: passwordInput
         })
     });
 
