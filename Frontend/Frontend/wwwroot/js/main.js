@@ -72,7 +72,6 @@ async function deriveKey(password, salt) {
         false,
         ["deriveKey"],
     );
-
     const derivedKey = await window.crypto.subtle.deriveKey(
         {
             name: "PBKDF2",
@@ -85,7 +84,6 @@ async function deriveKey(password, salt) {
         true,
         ["encrypt", "decrypt"]
     );
-
     return derivedKey;
 }
 
@@ -101,7 +99,6 @@ async function encryptData(data, password) {
         true,
         ["encrypt"] 
     );
-
     const encryptedContent = await window.crypto.subtle.encrypt(
         { name: "AES-GCM", iv: iv, tagLength: 128 },
         encryptionKey,
@@ -109,13 +106,8 @@ async function encryptData(data, password) {
     );
     const publicFragment = keyFragment.slice(0, keyFragment.length / 2);
     const privateFragment = keyFragment.slice(keyFragment.length / 2);
-    const ciphertext = encryptedContent.slice(
-        0,
-        encryptedContent.byteLength - 16,
-    );
-
     return {
-        ciphertext: uint8ArrayToBase64(new Uint8Array(ciphertext)),
+        ciphertext: uint8ArrayToBase64(new Uint8Array(encryptedContent)),
         iv: uint8ArrayToBase64(iv),
         salt: uint8ArrayToBase64(salt),
         privateFragment: uint8ArrayToBase64(privateFragment),
@@ -148,78 +140,96 @@ document.getElementById("validateLinkForm").addEventListener("submit", async fun
     const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
     const LinkError = document.getElementById("link-error");
 
-    const response = await fetch("/Index?handler=ValidateLink", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
-            'RequestVerificationToken': token
-        },
-        body: new URLSearchParams({
-            
-            generatedLink: generatedLink,
-            passwordInput: passwordInput
-        })
-    });
+    try {
+        const response = await fetch("/Index?handler=ValidateLink", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+                'RequestVerificationToken': token
+            },
+            body: new URLSearchParams({
+                generatedLink: generatedLink,
+                passwordInput: passwordInput
+            })
+        });
 
-    const result = await response.json().catch(() => null); // Handle non-JSON responses
+        const result = await response.json();
 
-    if (response.ok) {
-        if (result?.file) {
+        if (response.ok && result?.file) {
+            const idAndKey = generatedLink.split('id=')[1];
+            const privateFragment = idAndKey.split('/key=')[1];
+            if (!privateFragment) {
+                throw new Error("Invalid link format: Missing key fragment.");
+            }
+            const publicFrag = base64ToUint8Array(result.file.publicFragment);
+            const privateFrag = base64ToUint8Array(privateFragment);
+            const combinedKey = combineKeyFragments(publicFrag, privateFrag);
+            const derivedKey = await deriveKey(passwordInput, base64ToUint8Array(result.file.salt));
+            const encryptionKey = await reconstructEncryptionKey(derivedKey, combinedKey);
+            await decryptData(result.file, encryptionKey);
             LinkInput.value = '';
-            try {
-                await decryptData(result.file, password);
+            document.getElementById('passwordInput').value = '';
+            LinkError.innerHTML = '';
 
-            }
-            catch (error) {
-                return error;
-            }
+        } else {
+            const errorMessage = result?.error || "Invalid link. Please check and try again.";
+            LinkError.innerHTML = errorMessage;
         }
-    } else {
-        LinkInput.value = '';
-        const errorMessage = result?.error || "Invalid link. Please check and try again.";
-        LinkError.innerHTML = `${errorMessage}`;
+    } catch (error) {
+        console.error("Decryption failed:", error);
+        LinkError.innerHTML = "Decryption failed. Please check your password and link.";
     }
-    
 });
 
 async function decryptData(fileContent, decryptionKey) {
-    const keyData = base64ToUint8Array(decryptionKey);
     const iv = base64ToUint8Array(fileContent.iv);
     const ciphertext = base64ToUint8Array(fileContent.ciphertext);
-
-    const key = await crypto.subtle.importKey(
-        "raw",
-        keyData,
-        { name: "AES-GCM" },
-        false,
-        ["decrypt"]
-    );
-
     const decrypted = await crypto.subtle.decrypt(
-        {
-            name: "AES-GCM",
-            iv: iv,
-            tagLength: 128
-        },
-        key,
+        { name: "AES-GCM", iv: iv, tagLength: 128 },
+        decryptionKey,
         ciphertext
     );
-    //find file type
+
     FindFileTypeAndDecrypt(fileContent, decrypted);
 }
-function FindFileTypeAndDecrypt(file, cipherText) {
+function combineKeyFragments(publicFragment, privateFragment) {
+    const combined = new Uint8Array(publicFragment.length + privateFragment.length);
+    combined.set(publicFragment, 0);
+    combined.set(privateFragment, publicFragment.length);
+    var combinedKey = uint8ArrayToBase64(combined);
+    return combined;
+}
+
+async function reconstructEncryptionKey(derivedKey, combinedFragment) {
+    const rawDerivedKey = await window.crypto.subtle.exportKey("raw", derivedKey);
+    const rawDerivedBytes = new Uint8Array(rawDerivedKey);
+
+    const rawEncryptionKey = new Uint8Array(rawDerivedBytes.length);
+    for (let i = 0; i < rawDerivedBytes.length; i++) {
+        rawEncryptionKey[i] = rawDerivedBytes[i] ^ combinedFragment[i];
+    }
+
+    return await window.crypto.subtle.importKey(
+        "raw",
+        rawEncryptionKey,
+        { name: "AES-GCM" },
+        true,
+        ["encrypt", "decrypt"]
+    );
+}
+
+function FindFileTypeAndDecrypt(file, decryptedText) {
     const fileName = file.name;
-    console.log(file.name);
     const lastDotIndex = fileName.lastIndexOf('.');
     var fileType = fileName.slice(lastDotIndex + 1);
     let decryptedContent;
    
     if (fileType == "txt" || fileType == "json" || fileType == "xml" || fileType == "html" || fileType == "css") {
-        decryptedContent = new TextDecoder('utf-8').decode(cipherText);
+        decryptedContent = new TextDecoder('utf-8').decode(decryptedText);
         CreateFile(decryptedContent, file.type, fileName);
     }
     else {
-        decryptedContent = new Uint8Array(cipherText);
+        decryptedContent = new Uint8Array(decryptedText);
         CreateFile(decryptedContent, file.type, fileName);
     }    
 }
