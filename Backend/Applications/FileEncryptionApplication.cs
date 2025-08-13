@@ -38,6 +38,7 @@ namespace Backend.Applications
             file.onDelete = fileEncryption.OnDelete;  
             file.PublicFragment = fileEncryption.PublicFragment;
             file.Salt = fileEncryption.Salt;
+            file.AuthTag = fileEncryption.AuthTag;
             file.Type = fileEncryption.Type;
             return await fileEncryptionRepository.CreateEncryptedFileAsync(file);
         }

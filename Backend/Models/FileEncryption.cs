@@ -15,6 +15,7 @@ namespace Backend.Models
         public string IV { get; set; }
         public string Salt { get; set; }
         public string PublicFragment { get; set; }
+        public string AuthTag { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime? ExperationDate { get; set; }
         public int DownloadCount { get; set; }
