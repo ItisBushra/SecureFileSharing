@@ -27,7 +27,7 @@ async function SendFileToRazor(file, encrypted, experationDate, autoDelete) {
         const fullIdParam = result.link.split('id=')[1]; 
         const guidOnly = fullIdParam.split('/key=')[0];  
         linkContainer.innerHTML = `
-              <div style="text-align:center; margin-top: 1rem;">
+                <div style="text-align:center; margin-top: 1rem;">
                <div><strong> Click to View! </strong></div>
                   <a href="/Index?handler=Text&id=${guidOnly}" target="_blank">${result.link}</a>
                 <div style="margin-top: 0.5rem;">
@@ -186,20 +186,24 @@ document.getElementById("validateLinkForm").addEventListener("submit", async fun
 });
 
 async function decryptData(fileContent, decryptionKey) {
-    const iv = base64ToUint8Array(fileContent.iv);
-    const authTag = base64ToUint8Array(fileContent.authTag);
-    const ciphertext = base64ToUint8Array(fileContent.ciphertext);
-    const dataWithAuthTag = new Uint8Array(ciphertext.length + authTag.length);
-    dataWithAuthTag.set(ciphertext, 0);
-    dataWithAuthTag.set(authTag, ciphertext.length);
+    try {
+        const iv = base64ToUint8Array(fileContent.iv);
+        const authTag = base64ToUint8Array(fileContent.authTag);
+        const ciphertext = base64ToUint8Array(fileContent.ciphertext);
+        const dataWithAuthTag = new Uint8Array(ciphertext.length + authTag.length);
+        dataWithAuthTag.set(ciphertext, 0);
+        dataWithAuthTag.set(authTag, ciphertext.length);
 
-    const decrypted = await crypto.subtle.decrypt(
-        { name: "AES-GCM", iv: iv, tagLength: 128 },
-        decryptionKey,
-        dataWithAuthTag
-    );
+        const decrypted = await crypto.subtle.decrypt(
+            { name: "AES-GCM", iv: iv, tagLength: 128 },
+            decryptionKey,
+            dataWithAuthTag
+        );
+        FindFileTypeAndDecrypt(fileContent, decrypted);
+    } catch (error) {
+        LinkError.innerHTML = "Decryption failed."
+    }
 
-    FindFileTypeAndDecrypt(fileContent, decrypted);
 }
 function combineKeyFragments(publicFragment, privateFragment) {
     const combined = new Uint8Array(publicFragment.length + privateFragment.length);

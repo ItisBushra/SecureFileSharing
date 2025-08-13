@@ -1,4 +1,5 @@
 ﻿const dropZone = document.getElementById('drop-zone-enc');
+const linkContainer = document.getElementById('generated-link');
 const fileInput = document.getElementById('file-enc');
 const warningContainer = document.getElementById('file-number-warning-enc');
 const typeWarning = document.getElementById("file-type-warning-enc");
@@ -93,4 +94,5 @@ function ValidateFile(files, warningContainer, fileInput) {
 
     //once validated
     dateBtn.style.display = 'block';
+    linkContainer.innerHTML = '';
 }
