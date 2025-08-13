@@ -8,6 +8,7 @@ async function SendFileToRazor(file, encrypted, experationDate, autoDelete) {
         OnDelete: autoDelete,
         Salt: encrypted.salt,
         Type: file.type,
+        AuthTag: encrypted.authTag,
         PublicFragment: encrypted.publicFragment,
         PrivateFragment: encrypted.privateFragment
     };
@@ -104,12 +105,15 @@ async function encryptData(data, password) {
         encryptionKey,
         data
     );
+    const ciphertext = encryptedContent.slice(0,encryptedContent.byteLength - 16);
+    const authTag = encryptedContent.slice(encryptedContent.byteLength - 16);
     const publicFragment = keyFragment.slice(0, keyFragment.length / 2);
     const privateFragment = keyFragment.slice(keyFragment.length / 2);
     return {
-        ciphertext: uint8ArrayToBase64(new Uint8Array(encryptedContent)),
+        ciphertext: uint8ArrayToBase64(new Uint8Array(ciphertext)),
         iv: uint8ArrayToBase64(iv),
         salt: uint8ArrayToBase64(salt),
+        authTag: uint8ArrayToBase64(new Uint8Array(authTag)),
         privateFragment: uint8ArrayToBase64(privateFragment),
         publicFragment: uint8ArrayToBase64(publicFragment),
     };
@@ -183,11 +187,16 @@ document.getElementById("validateLinkForm").addEventListener("submit", async fun
 
 async function decryptData(fileContent, decryptionKey) {
     const iv = base64ToUint8Array(fileContent.iv);
+    const authTag = base64ToUint8Array(fileContent.authTag);
     const ciphertext = base64ToUint8Array(fileContent.ciphertext);
+    const dataWithAuthTag = new Uint8Array(ciphertext.length + authTag.length);
+    dataWithAuthTag.set(ciphertext, 0);
+    dataWithAuthTag.set(authTag, ciphertext.length);
+
     const decrypted = await crypto.subtle.decrypt(
         { name: "AES-GCM", iv: iv, tagLength: 128 },
         decryptionKey,
-        ciphertext
+        dataWithAuthTag
     );
 
     FindFileTypeAndDecrypt(fileContent, decrypted);
