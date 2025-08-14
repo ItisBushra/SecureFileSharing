@@ -32,9 +32,9 @@ async function SendFileToRazor(file, encrypted, experationDate, autoDelete) {
                   <a href="/Index?handler=Text&id=${guidOnly}" target="_blank">${result.link}</a>
                 <div style="margin-top: 0.5rem;">
                   <a href="/Index?handler=Download&id=${guidOnly}" 
-                  style="color:blue; margin-right: 1rem;">Download Encrypted File?</a>
+                  style="color:blue; margin-right: 1rem;">Download?</a>
                   <a href="/Index?handler=Delete&id=${guidOnly}" style="color:red;"
-                  >Remove Encrypted File?</a>
+                  >Remove?</a>
                 </div>
               </div>
         `;
