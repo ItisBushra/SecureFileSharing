@@ -83,7 +83,12 @@
                                             <path d="M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2zm3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z" />
                                         </svg>
                                     </span>
-                                    <input name="passwordInput" id="passwordInput" type="password" class="form-control" style="min-width: 500px;" placeholder="Enter the decryption password" required>
+                                    <input name="passwordInput" id="passwordInput" type="password" class="form-control" placeholder="Enter the decryption password" required>
+                                    <div class="input-group-append">
+                                        <span class="input-group-text" onclick="togglePassword()" style="cursor: pointer;">
+                                            <i id="eyeText">show</i>
+                                        </span>
+                                    </div>
                                 </div>
 
                                 <div class="m-2 mt-4">
@@ -95,7 +100,7 @@
                         </div>
                         <div class="text-black text-center">
                             Files can be accessed <strong>
-                                up to 3 times
+                                up to 2 times
                             </strong>. After the limit is reached, it will be automatically deleted from our system.
                         </div>                      
                 </div>        
@@ -104,6 +109,20 @@
        </div>
     </div>
 </section>
+<script>
+    function togglePassword() {
+      const passwordInput = document.getElementById('passwordInput');
+      const eyeText = document.getElementById('eyeText');
+
+         if (passwordInput.type === 'password') {
+      passwordInput.type = 'text';
+      eyeText.textContent = 'Hide';
+    } else {
+      passwordInput.type = 'password';
+      eyeText.textContent = 'Show';
+    }
+    }
+</script>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="~/js/fileValidation.js"></script>

@@ -95,7 +95,7 @@ public class IndexModel : PageModel
         }
         return RedirectToPage("Index");
     }
-    public async Task<IActionResult> OnPostValidateLink(string generatedLink, string passwordInput)
+    public async Task<IActionResult> OnPostValidateLinkAndPassword(string generatedLink, string passwordInput)
     {
         var userLinkId = validateLink.ValidateLinkStructure(generatedLink);
         var cipherFile = await fileEncryptionApplication.GetEncryptedFileAsync(userLinkId.Value);
@@ -105,7 +105,7 @@ public class IndexModel : PageModel
         }
         //once validated
         await fileEncryptionApplication.UpdateEncryptedFileAccessCountAsync(userLinkId.Value);
-        if(cipherFile.Accessed >= 3)
+        if(cipherFile.Accessed >= 2)
         {
             await OnGetDeleteAsync(userLinkId.Value, "decryption");
             return BadRequest(new { error = "This file is no longer available." });

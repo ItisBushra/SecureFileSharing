@@ -145,7 +145,7 @@ document.getElementById("validateLinkForm").addEventListener("submit", async fun
     const LinkError = document.getElementById("link-error");
 
     try {
-        const response = await fetch("/Index?handler=ValidateLink", {
+        const response = await fetch("/Index?handler=ValidateLinkAndPassword", {
             method: "POST",
             headers: {
                 "Content-Type": "application/x-www-form-urlencoded",
