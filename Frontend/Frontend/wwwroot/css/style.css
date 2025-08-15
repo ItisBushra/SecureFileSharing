@@ -92,7 +92,10 @@ html, body {
     color: black;
 
 }
-
+.pop-styling
+{
+    text-align:justify;
+}
 /* file styling ended**/
 a, a:hover {
     color: inherit;
