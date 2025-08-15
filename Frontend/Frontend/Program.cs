@@ -31,7 +31,7 @@ builder.Services.AddRateLimiter(options =>
 {
     options.AddFixedWindowLimiter(policyName: "ValidateLinkPolicy", configureOptions: opt =>
     {
-        opt.PermitLimit = 5;
+        opt.PermitLimit = 10;
         opt.Window = TimeSpan.FromMinutes(1);
         opt.QueueLimit = 0;
         opt.AutoReplenishment = true;

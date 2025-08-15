@@ -78,16 +78,21 @@ public class IndexModel : PageModel
 
         return File(bytes, "application/octet-stream", fileName); 
     }
-    public async Task<IActionResult> OnGetDeleteAsync(Guid id, string? activeTab = "encryption")
+    public async Task<IActionResult> OnPostDeleteAsync(Guid id, string? activeTab = "encryption")
     {
         var file = await fileEncryptionApplication.GetEncryptedFileAsync(id);
-        if(file == null) return BadRequest("The file Does not Exists or is an Empty Value!");
+
+        if (file == null) return BadRequest(new { error = "The file Does not Exists or is an Empty Value!" });
 
         try
         {
             await fileEncryptionApplication.RemoveEncryptedFileAsync(id);
             if(activeTab == "encryption")
-                TempData["SuccessMessage"] = "Encrypted file was removed successfully from our database. The link will not work anymore.";
+                return new JsonResult(new
+                {
+                    success = true,
+                    message = "Encrypted file was removed successfully from our database. The link will not work anymore."
+                });      
         }
         catch (Exception ex)
         {
@@ -107,7 +112,7 @@ public class IndexModel : PageModel
         await fileEncryptionApplication.UpdateEncryptedFileAccessCountAsync(userLinkId.Value);
         if(cipherFile.Accessed >= 2)
         {
-            await OnGetDeleteAsync(userLinkId.Value, "decryption");
+            await OnPostDeleteAsync(userLinkId.Value, "decryption");
             return BadRequest(new { error = "This file is no longer available." });
         }
         return new JsonResult(new { file = cipherFile }); // for decryption

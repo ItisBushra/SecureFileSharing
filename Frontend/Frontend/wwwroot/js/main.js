@@ -33,13 +33,34 @@ async function SendFileToRazor(file, encrypted, experationDate, autoDelete) {
                 <div style="margin-top: 0.5rem;">
                   <a href="/Index?handler=Download&id=${guidOnly}" 
                   style="color:blue; margin-right: 1rem;">Download</a>
-                  <a href="/Index?handler=Delete&id=${guidOnly}" style="color:red;"
-                  >Remove</a>
+                  <a href="#" class="delete-link" data-id="${guidOnly}" 
+                    style="color:red;">Remove</a>
                 </div>
               </div>
         `;
     }
+
+    document.querySelector(".delete-link").addEventListener("click", async function () {
+        const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
+        const id = this.getAttribute('data-id');
+
+        const response = await fetch(`/Index?handler=Delete&id=${id}`, {
+            method: "POST",
+            headers: {
+                'RequestVerificationToken': token
+            },
+
+        });
+        const result = await response.json();
+        if (response.ok) {
+            linkContainer.innerHTML = result.message;
+        } else if (!response.ok) {
+            linkContainer.innerHTML = 'Failed to delete file';
+        }
+    });
 }
+
+
 function handleFile(files, experationDate, autoDelete, passwordValue) {
     const file = files[0];
     const reader = new FileReader();
