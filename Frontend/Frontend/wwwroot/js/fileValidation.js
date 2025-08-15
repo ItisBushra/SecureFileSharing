@@ -4,7 +4,7 @@ const fileInput = document.getElementById('file-enc');
 const warningContainer = document.getElementById('file-number-warning-enc');
 const typeWarning = document.getElementById("file-type-warning-enc");
 const dateBtn = document.getElementById("experationBtn");
-const fileTypes = ["txt", "json", "xml", "html", "css", "png", "jpg", "jpeg", "gif", "bmp",
+const fileTypes = ["txt", "xml", "html", "css", "png", "jpg", "jpeg", "gif", "bmp",
     "webp", "sqlite", "db", "csv", "json", "pdf", "docx", "xlsx", "pptx", "mp3", "wav",
     "mp4", "webm", "svg", "exe", "dll", "app", "sql"];
 

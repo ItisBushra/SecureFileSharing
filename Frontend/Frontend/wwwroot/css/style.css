@@ -100,6 +100,43 @@ html, body {
 a, a:hover {
     color: inherit;
 }
+.file-type-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.file-category {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
+    width: 100%;
+}
+
+.badge-category {
+    background: #f8f9fa;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 0.75rem;
+    color: #495057;
+    border: 1px solid #dee2e6;
+}
+.badge {
+    font-size: 0.60rem !important;
+    color: black !important; 
+    font-weight:100;
+}
+
+.section-title {
+    border-bottom: 2px solid #f1f1f1;
+    padding-bottom: 5px;
+}
+
+.security-features li {
+    margin-bottom: 8px;
+}
 /*model styling ended**/
 .experation-date {
     display: flex;
